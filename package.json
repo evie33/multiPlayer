@@ -1,15 +1,16 @@
 {
-  "name": "phaser_tut2",
+  "name": "multi-player001",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "author": "Scott Westover",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",
+    "nodemon": "^1.18.4",
     "socket.io": "^2.1.0"
   }
 }
