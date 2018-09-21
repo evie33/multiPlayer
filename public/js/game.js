@@ -139,10 +139,6 @@ function update() {
     if (this.cursors.down.isDown) {
       this.ship.body.velocity.y = -100;
     }
-    // if (fireButton.isDown) {
-    //   this.weapon.fire();
-    // }
-
     this.physics.world.wrap(this.ship, 5);
 
     // emit player movement
