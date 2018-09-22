@@ -30,17 +30,16 @@ function create() {
   var self = this;
   this.socket = io();
   this.otherPlayers = this.physics.add.group();
-  const ship1 = this.socket.on('currentPlayers', function(players) {
+  this.socket.on('currentPlayers', function(players) {
     Object.keys(players).forEach(function(id) {
       if (players[id].playerId === self.socket.id) {
-        console.log('--------------', self);
         addPlayer(self, players[id]);
       } else {
         addOtherPlayers(self, players[id]);
       }
     });
   });
-  const ship2 = this.socket.on('newPlayer', function(playerInfo) {
+  this.socket.on('newPlayer', function(playerInfo) {
     addOtherPlayers(self, playerInfo);
   });
   this.socket.on('disconnect', function(playerId) {
@@ -61,17 +60,17 @@ function create() {
   this.cursors = this.input.keyboard.createCursorKeys();
 
   this.blueScoreText = this.add.text(16, 16, '', {
-    fontSize: '32px',
-    fill: '#0000FF'
+    fontSize: '25px',
+    fill: '#7AE8A0'
   });
   this.redScoreText = this.add.text(584, 16, '', {
-    fontSize: '32px',
-    fill: '#FF0000'
+    fontSize: '25px',
+    fill: '#5DF0FF'
   });
 
   this.socket.on('scoreUpdate', function(scores) {
-    self.blueScoreText.setText('Blue: ' + scores.blue);
-    self.redScoreText.setText('Red: ' + scores.red);
+    self.blueScoreText.setText('Happi: ' + scores.blue);
+    self.redScoreText.setText('Crazy: ' + scores.red);
   });
 
   this.socket.on('starLocation', function(starLocation) {
@@ -90,8 +89,6 @@ function create() {
 }
 
 function addPlayer(self, playerInfo) {
-  console.log(self.ship, '-----=======within addd', self.physics.add);
-
   if (playerInfo.team === 'blue') {
     self.ship = self.physics.add
       .image(playerInfo.x, playerInfo.y, 'hippo')
@@ -103,9 +100,6 @@ function addPlayer(self, playerInfo) {
       .setOrigin(0.5, 0.5)
       .setDisplaySize(33, 30);
   }
-  //self.ship.setDrag(100);
-  //self.ship.setAngularDrag(100);
-  // self.ship.setMaxVelocity(200);
 }
 
 function addOtherPlayers(self, playerInfo) {
@@ -129,15 +123,13 @@ function update() {
   if (this.ship) {
     if (this.cursors.left.isDown) {
       this.ship.body.velocity.x = -100;
-    }
-    if (this.cursors.right.isDown) {
+    } else if (this.cursors.right.isDown) {
       this.ship.body.velocity.x = 100;
     }
     if (this.cursors.up.isDown) {
-      this.ship.body.velocity.y = 100;
-    }
-    if (this.cursors.down.isDown) {
       this.ship.body.velocity.y = -100;
+    } else if (this.cursors.down.isDown) {
+      this.ship.body.velocity.y = 100;
     }
     this.physics.world.wrap(this.ship, 5);
 
