@@ -1,14 +1,54 @@
 <!DOCTYPE html>
 <html>
 
-    <head>
-        <meta charset="utf-8">
-    </head>
+<head>
+    <meta charset="utf-8">
+    <style type="text/css">
+        #grid-canvas {
+            width: 900px;
+            height: 200px;
+            position: absolute;
+            top: 75%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid black;
+        }
 
-    <body>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="//cdn.jsdelivr.net/npm/phaser@3.3.0/dist/phaser.min.js"></script>
-        <script src="js/game.js"></script>
-    </body>
+        #left {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top: 60%;
+            left: 0%;
+        }
+
+        #right {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top: 60%;
+            left: 70%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script id="game" src="//cdn.jsdelivr.net/npm/phaser@3.3.0/dist/phaser.min.js"></script>
+    <canvas id="grid-canvas" width="900" height="200"></canvas>
+
+    <script src="demo.min.js"></script>
+    <script src="js/game.js"></script>
+
+    <div id="controller">
+        <div id="front">
+            <img id="left" src="assets/left.png" />
+            <img id="right" src="assets/right.png" />
+        </div>
+
+    </div>
+
+</body>
 
 </html>

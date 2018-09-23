@@ -1,3 +1,5 @@
+// const socket = io(window.location.origin);
+
 var config = {
   type: Phaser.AUTO,
   parent: 'phaser-example',
@@ -48,6 +50,15 @@ function create() {
         otherPlayer.destroy();
       }
     });
+  });
+  this.socket.on('broadcast', data => {
+    this.ship.body.velocity.x = -100;
+  });
+  this.socket.on('toRight', () => {
+    this.ship.body.velocity.x = 100;
+  });
+  this.socket.on('toUp', () => {
+    this.ship.body.velocity.y = -100;
   });
   this.socket.on('playerMoved', function(playerInfo) {
     self.otherPlayers.getChildren().forEach(function(otherPlayer) {
@@ -131,6 +142,7 @@ function update() {
     } else if (this.cursors.down.isDown) {
       this.ship.body.velocity.y = 100;
     }
+
     this.physics.world.wrap(this.ship, 5);
 
     // emit player movement

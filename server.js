@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
+var path = require('path');
 
 var players = {};
 var star = {
@@ -14,12 +15,8 @@ var scores = {
 };
 
 app.use(express.static(__dirname + '/public'));
-
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-
-io.on('connection', function (socket) {
+// app.use('/', require('./route.js'));
+io.on('connection', function(socket) {
   console.log('a user connected: ', socket.id);
   // create a new player and add it to our players object
   players[socket.id] = {
@@ -27,7 +24,7 @@ io.on('connection', function (socket) {
     x: Math.floor(Math.random() * 700) + 50,
     y: Math.floor(Math.random() * 500) + 50,
     playerId: socket.id,
-    team: (Math.floor(Math.random() * 2) == 0) ? 'red' : 'blue'
+    team: Math.floor(Math.random() * 2) == 0 ? 'red' : 'blue'
   };
   // send the players object to the new player
   socket.emit('currentPlayers', players);
@@ -39,15 +36,35 @@ io.on('connection', function (socket) {
   socket.broadcast.emit('newPlayer', players[socket.id]);
 
   // when a player disconnects, remove them from our players object
-  socket.on('disconnect', function () {
+  socket.on('disconnect', function() {
     console.log('user disconnected: ', socket.id);
     delete players[socket.id];
     // emit a message to all players to remove this player
     io.emit('disconnect', socket.id);
   });
 
+  socket.on('left', function() {
+    console.log('recing left emit ---------');
+    io.sockets.emit('broadcast', players[socket.id]);
+  });
+
+  socket.on('up', function() {
+    console.log('recing left emit ---------');
+    io.sockets.emit('toUp', players[socket.id]);
+  });
+  socket.on('right', function() {
+    console.log('recing left emit ---------');
+    io.sockets.emit('toRight', players[socket.id]);
+  });
+  //socket.emit('right', function() {
+  //   socket.on('right');
+  //   console.log('----');
+  // players[socket.id].x += 100;
+  // socket.broadcast.emit('playerMoved', players[socket.id]);
+  // });
+
   // when a player moves, update the player data
-  socket.on('playerMovement', function (movementData) {
+  socket.on('playerMovement', function(movementData) {
     players[socket.id].x = movementData.x;
     players[socket.id].y = movementData.y;
     players[socket.id].rotation = movementData.rotation;
@@ -55,7 +72,7 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('playerMoved', players[socket.id]);
   });
 
-  socket.on('starCollected', function () {
+  socket.on('starCollected', function() {
     if (players[socket.id].team === 'red') {
       scores.red += 10;
     } else {
@@ -68,6 +85,6 @@ io.on('connection', function (socket) {
   });
 });
 
-server.listen(8081, function () {
+server.listen(8080, function() {
   console.log(`Listening on ${server.address().port}`);
 });
