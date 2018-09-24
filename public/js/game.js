@@ -20,23 +20,28 @@ var config = {
 };
 
 var game = new Phaser.Game(config);
-
+var gameOver = false;
 function preload() {
-  this.load.image('hippo', 'assets/hippo.png');
+  this.load.image('hippo', 'assets/pig.png');
   this.load.image('giraffe', 'assets/giraffe.png');
   this.load.image('star', 'assets/star.png');
   this.load.image('bomb', 'assets/bomb.png');
+  this.load.image('sky', 'assets/sky3.png');
 }
 
 function create() {
   var self = this;
   this.socket = io();
   this.otherPlayers = this.physics.add.group();
+  this.add.image(400, 290, 'sky').setDisplaySize(1040, 650);
   this.socket.on('currentPlayers', function(players) {
     Object.keys(players).forEach(function(id) {
       if (players[id].playerId === self.socket.id) {
         addPlayer(self, players[id]);
       } else {
+        if (players.length >= 2) {
+          return;
+        }
         addOtherPlayers(self, players[id]);
       }
     });
@@ -84,6 +89,20 @@ function create() {
     self.redScoreText.setText('Crazy: ' + scores.red);
   });
 
+  this.socket.on('Bluewinner', function() {
+    self.blueScoreText.setText('HAPPI WON!!!!');
+    self.physics.pause();
+    self.setTin(0xff0000);
+    gameOver = true;
+  });
+
+  this.socket.on('Redwinner', function() {
+    self.blueScoreText.setText('Crazy WON!!!!');
+    self.physics.pause();
+    self.setTin(0xff0000);
+    gameOver = true;
+  });
+
   this.socket.on('starLocation', function(starLocation) {
     if (self.star) self.star.destroy();
     self.star = self.physics.add.image(starLocation.x, starLocation.y, 'star');
@@ -92,6 +111,21 @@ function create() {
       self.star,
       function() {
         this.socket.emit('starCollected');
+      },
+      null,
+      self
+    );
+  });
+
+  this.socket.on('bombLocation', function(bombLocation) {
+    self.bomb = self.physics.add
+      .image(bombLocation.x, bombLocation.y, 'bomb')
+      .setDisplaySize(20, 20);
+    self.physics.add.overlap(
+      self.ship,
+      self.bomb,
+      function() {
+        this.socket.emit('bombTouched');
       },
       null,
       self
@@ -131,6 +165,9 @@ function addOtherPlayers(self, playerInfo) {
 }
 
 function update() {
+  if (gameOver) {
+    return;
+  }
   if (this.ship) {
     if (this.cursors.left.isDown) {
       this.ship.body.velocity.x = -100;

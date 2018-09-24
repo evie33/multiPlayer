@@ -2,11 +2,15 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
-var path = require('path');
+// var path = require('path');
 
 var players = {};
 var star = {
-  x: Math.floor(Math.random() * 700) + 50,
+  x: Math.floor(Math.random() * 500) + 50,
+  y: Math.floor(Math.random() * 500) + 50
+};
+var bomb = {
+  x: Math.floor(Math.random() * 500) + 50,
   y: Math.floor(Math.random() * 500) + 50
 };
 var scores = {
@@ -44,24 +48,15 @@ io.on('connection', function(socket) {
   });
 
   socket.on('left', function() {
-    console.log('recing left emit ---------');
     io.sockets.emit('broadcast', players[socket.id]);
   });
 
   socket.on('up', function() {
-    console.log('recing left emit ---------');
     io.sockets.emit('toUp', players[socket.id]);
   });
   socket.on('right', function() {
-    console.log('recing left emit ---------');
     io.sockets.emit('toRight', players[socket.id]);
   });
-  //socket.emit('right', function() {
-  //   socket.on('right');
-  //   console.log('----');
-  // players[socket.id].x += 100;
-  // socket.broadcast.emit('playerMoved', players[socket.id]);
-  // });
 
   // when a player moves, update the player data
   socket.on('playerMovement', function(movementData) {
@@ -78,10 +73,21 @@ io.on('connection', function(socket) {
     } else {
       scores.blue += 10;
     }
-    star.x = Math.floor(Math.random() * 700) + 50;
+    star.x = Math.floor(Math.random() * 500) + 50;
     star.y = Math.floor(Math.random() * 500) + 50;
+
+    bomb.x = Math.floor(Math.random() * 650) + 50;
+    bomb.y = Math.floor(Math.random() * 650) + 50;
     io.emit('starLocation', star);
+    io.emit('bombLocation', bomb);
     io.emit('scoreUpdate', scores);
+  });
+  socket.on('bombTouched', function() {
+    if (players[socket.id].team === 'red') {
+      io.emit('Bluewinner');
+    } else {
+      io.emit('Redwinner');
+    }
   });
 });
 
